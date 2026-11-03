@@ -1,2 +1,16 @@
-gradio
+gradio==5.25.2
+pandas
 requests
+
+langchain
+langchain-core
+langchain-community
+langchain-google-genai
+langgraph
+
+google-api-python-client
+google-api-core
+
+yt-dlp
+ddgs
+beautifulsoup4
