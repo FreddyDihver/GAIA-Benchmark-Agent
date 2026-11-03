@@ -1,6 +1,7 @@
 import os
 import gradio as gr
 from langchain_google_genai import ChatGoogleGenerativeAI
+import spaces
 
 from tools import *
 from agent import *
@@ -32,11 +33,19 @@ llm = ChatGoogleGenerativeAI(
 llm = RetryLLM(llm)
 
 
+##################################
+## Submission and ZeroGPU Check ##
+##################################
 def run_submission(profile: gr.OAuthProfile | None):
     return run_and_submit_all(profile, llm)
 
+@spaces.GPU
+def zerogpu_check():
+    return "ZeroGPU handler registered"
 
-# --- Build Gradio Interface using Blocks ---
+############################
+## Build Gradio Interface ##
+############################
 with gr.Blocks() as demo:
     gr.Markdown("# Basic Agent Evaluation Runner")
     gr.Markdown(
@@ -54,6 +63,17 @@ with gr.Blocks() as demo:
         """
     )
 
+    # Zero GPU Handler
+    gpu_check_button = gr.Button(visible=False)
+    gpu_check_output = gr.Textbox(visible=False)
+    
+    gpu_check_button.click(
+        fn=zerogpu_check,
+        inputs=[],
+        outputs=gpu_check_output
+    )
+
+    # Build
     gr.LoginButton()
 
     run_button = gr.Button("Run Evaluation & Submit All Answers")
