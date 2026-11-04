@@ -132,7 +132,7 @@ class BasicAgent:
             ]
     
             response = self.llm.model.invoke(final_messages)
-            answer = response["messages"][-1].text
+            answer = response.text
             print(f"Agent returning answer: {answer}")
             return answer
 
