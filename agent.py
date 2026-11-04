@@ -98,9 +98,9 @@ class BasicAgent:
         ]
         try:
             response = self.graph.invoke({"messages": messages},
-                                     config={"recursion_limit": 25})
-        
-            answer = response["messages"][-1].content
+                                     config={"recursion_limit": 40})
+
+            answer = response["messages"][-1].text
 
             print(f"Agent returning answer: {answer}")
             return answer
@@ -119,7 +119,7 @@ class BasicAgent:
                     ))
                 ]
         
-                response = self.llm.invoke(final_messages)
+                response = self.llm.model.invoke(final_messages)
                 return response.content
 
     
