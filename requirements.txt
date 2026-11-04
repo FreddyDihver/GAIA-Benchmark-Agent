@@ -14,3 +14,4 @@ google-api-core
 yt-dlp
 ddgs
 beautifulsoup4
+openpyxl
