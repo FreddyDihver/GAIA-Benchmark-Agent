@@ -106,20 +106,22 @@ class BasicAgent:
             return answer
 
         except GraphRecursionError:
-                print("Recursion limit reached. Asking for best guess...")
-        
-                # Ask the LLM directly, without binding tools
-                final_messages = messages + [
-                    SystemMessage(content=(
-                        "You have reached the tool-use limit. "
-                        "Do not call any more tools. Based on the information "
-                        "already available in the conversation, provide your "
-                        "best-supported answer. If uncertain, make your best guess. "
-                        "Return only the answer."
-                    ))
-                ]
-        
-                response = self.llm.model.invoke(final_messages)
-                return response.content
+            print("Recursion limit reached. Asking for best guess...")
+    
+            # Ask the LLM directly, without binding tools
+            final_messages = messages + [
+                SystemMessage(content=(
+                    "You have reached the tool-use limit. "
+                    "Do not call any more tools. Based on the information "
+                    "already available in the conversation, provide your "
+                    "best-supported answer. If uncertain, make your best guess. "
+                    "Return only the answer."
+                ))
+            ]
+    
+            response = self.llm.model.invoke(final_messages)
+            answer = response["messages"][-1].text
+            print(f"Agent returning answer: {answer}")
+            return answer
 
     
