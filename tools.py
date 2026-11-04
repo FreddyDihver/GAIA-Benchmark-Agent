@@ -150,11 +150,12 @@ def search_and_read_web_tool(query: str) -> str:
     """
     try:
         results = websearch_tool.invoke({"query": query})
-        print(results)
     except Exception as e:
+        print(f"Web search failed: {e}")
         return f"Web search failed: {e}"
 
     if not isinstance(results, list) or not results:
+        print('No usable search results')
         return f"No usable search results. Search returned: {results}"
 
     pages = []
@@ -163,8 +164,10 @@ def search_and_read_web_tool(query: str) -> str:
         try:
             content = visit_website_tool.invoke({"url": url})
             pages.append(content)
+            print('Searched the web')
         except Exception as e:
             pages.append(f"Could not read {url}: {e}")
+            print(f"Could not read {url}: {e}")
 
     return "\n\n".join(pages) if pages else "No result pages could be read."
 
@@ -202,15 +205,6 @@ def download_gaia_attachment(file_name: str) -> str:
         print(f"File exists: {Path(file_path).exists()}")
         return str(file_path)
 
-        local_path = hf_hub_download(
-            repo_id="gaia-benchmark/GAIA",
-            repo_type="dataset",
-            filename=f"2023/validation/{file_name}",
-            local_dir="downloads"
-        )
-
-        return f"Downloaded: {local_path}"
-
     except Exception as e:
         print(f"Attachment download failed: {type(e).__name__}: {e}")
         return f"Error downloading attachment: {type(e).__name__}: {e}"
@@ -230,13 +224,16 @@ def read_text_tool(file_path: str) -> str:
         path = Path(file_path)
 
         if not path.is_file():
+            print(f"File not found: {file_path}")
             return f"File not found: {file_path}"
 
         # Replace invalid UTF-8 characters so the tool can still read the file.
         content = path.read_text(encoding="utf-8", errors="replace")
+        print("File read")
         return content if content.strip() else "The file is empty."
 
     except OSError as e:
+        print(f"Error reading file: {e}")
         return f"Error reading file: {e}"
 
 @tool
@@ -260,9 +257,11 @@ def read_csv_tool(file_path: str) -> str:
 
         # Load dataframe
         df = pd.read_csv(file_path, skiprows=skiprows)
+        print(f"Loaded CSV file of size {len(df)}, {len(df.columns)}")
         return f"Loaded CSV file of size {len(df)}, {len(df.columns)}. Content:\n{df.to_string(index=False)}"
 
     except Exception as e:
+        print(f"Error reading CSV file: {e}")
         return f"Error reading CSV file: {e}"
 
 @tool
@@ -275,9 +274,11 @@ def read_excel_tool(file_path: str) -> str:
     """
     try:
         df = pd.read_excel(file_path)
+        print(f"Loaded Excel file of size {len(df)}, {len(df.columns)}")
         return f"Loaded Excel file of size {len(df)}, {len(df.columns)}. Content:\n{df.to_string(index=False)}"
         
     except Exception as e:
+        print(f"Error reading Excel file: {e}")
         return f"Error reading Excel file: {e}"
 
 #################
@@ -311,10 +312,11 @@ def describe_image_assistant(image_path: str) -> str:
                 },
             ])
         ])
-
+        print("Image analyzed")
         return response.content
     except Exception as e:
-            return f"Could not analyze the image: {e}"
+        print(f"Could not analyze the image: {e}")
+        return f"Could not analyze the image: {e}"
 
 @tool
 def extract_text_from_image_assistant(image_path: str) -> str:
@@ -342,10 +344,11 @@ def extract_text_from_image_assistant(image_path: str) -> str:
                 },
             ])
         ])
-
+        print("Image analyzed")
         return response.content
     except Exception as e:
-            return f"Could not analyze the image: {e}"
+        print(f"Could not analyze the image: {e}")
+        return f"Could not analyze the image: {e}"
 
 ##############
 ## MP3 tool ##
@@ -383,7 +386,8 @@ def analyze_mp3_tool(audio_path: str) -> str:
                 },
             ])
         ])
-
+        print("Image analyzed")
         return response.text
     except Exception as e:
+        print(f"Could not analyze the MP3: {e}")
         return f"Could not analyze the MP3: {e}"
