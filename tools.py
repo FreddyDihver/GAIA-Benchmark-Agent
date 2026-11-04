@@ -140,6 +140,8 @@ def search_and_read_web_tool(query: str) -> str:
     Use this as the default and usually only tool for web research
     when no direct URL is provided. The result includes page content,
     titles, and URLs. Do not call websearch_tool separately first.
+    Do NOT use this tool to retrieve or investigate information that
+    should be contained in a GAIA task attachment.
     
     args:
         query (str): The query to search for.
@@ -175,6 +177,7 @@ from huggingface_hub import hf_hub_download
 def download_gaia_attachment(file_name: str) -> str:
     """
     Download an attachment from the GAIA validation dataset.
+    IMPORTANT: This tool MUST be called before any web search whenever the question mentions an attached file or filename.
 
     Args:
         file_name: Exact attachment filename provided by the GAIA task.
@@ -187,6 +190,18 @@ def download_gaia_attachment(file_name: str) -> str:
         if Path(file_name).name != file_name:
             return "Invalid filename."
 
+        print(f"Downloading attachment: {file_name}")       
+        print(f"Working directory: {os.getcwd()}")       
+        print(f"HF token available: {bool(os.getenv('HF_TOKEN'))}")    
+        file_path = hf_hub_download(repo_id="gaia-benchmark/GAIA",
+                                    repo_type="dataset",
+                                    filename=f"2023/validation/{file_name}",
+                                    local_dir="downloads",
+                                    token=os.getenv("HF_TOKEN"))
+        print(f"Downloaded path: {file_path}")
+        print(f"File exists: {Path(file_path).exists()}")
+        return str(file_path)
+
         local_path = hf_hub_download(
             repo_id="gaia-benchmark/GAIA",
             repo_type="dataset",
@@ -197,7 +212,8 @@ def download_gaia_attachment(file_name: str) -> str:
         return f"Downloaded: {local_path}"
 
     except Exception as e:
-        return f"Download failed: {e}"
+        print(f"Attachment download failed: {type(e).__name__}: {e}")
+        return f"Error downloading attachment: {type(e).__name__}: {e}"
 
 ######################
 ## Read files tools ##
