@@ -119,6 +119,7 @@ class BasicAgent:
                 final_state = state
         
             answer = final_state["messages"][-1].text
+            print(f"Agent returning answer: {answer}")
             return answer
         
         except GraphRecursionError:
@@ -136,5 +137,8 @@ class BasicAgent:
             
             response = self.llm.model.invoke(final_messages)
             answer = response.text
+            print(f"Agent returning answer: {answer}")
+
+            return answer
 
     
