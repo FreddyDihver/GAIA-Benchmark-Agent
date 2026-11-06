@@ -19,7 +19,7 @@ else:
 ## LLM with Retry Logic ##
 ##########################
 base_llm = ChatGoogleGenerativeAI(
-    model="gemini-3.5-flash-lite",
+    model="gemini-3.1-flash-lite",
     google_api_key=api_key,
     thinking_level="high",
 )
