@@ -134,11 +134,19 @@ class BasicAgent:
                     "Return only the answer."
                 ))
             ]
+            try:
+                response = self.llm.model.invoke(final_messages)
             
-            response = self.llm.model.invoke(final_messages)
+            except Exception as e:
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    print("Gemini unavailable. Retrying once in 60 seconds...")
+                    time.sleep(61)
+                    response = self.llm.model.invoke(final_messages)
+                else:
+                    raise
+            
             answer = response.text
             print(f"Agent returning answer: {answer}")
-
             return answer
 
     
