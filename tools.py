@@ -299,7 +299,7 @@ def analyze_mp3_tool(audio_path: str) -> str:
                 },
             ])
         ])
-        print("Image analyzed")
+        print("MP3 analyzed")
         return response.text
     except Exception as e:
         print(f"Could not analyze the MP3: {e}")
