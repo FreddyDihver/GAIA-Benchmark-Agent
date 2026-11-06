@@ -5,7 +5,7 @@ from langchain.tools import tool
 from googleapiclient.discovery import build
 from langchain_community.document_loaders import WebBaseLoader
 from urllib.parse import urlparse, parse_qs
-import yt_dlp
+
 from ddgs import DDGS
 from ddgs.exceptions import DDGSException
 from langchain_core.messages import HumanMessage
@@ -13,83 +13,6 @@ import mimetypes
 
 from model import *
 
-################################
-##  YouTube Content Retrieval ##
-################################
-def get_video_id(url: str) -> str:
-    parsed = urlparse(url)
-
-    if parsed.hostname == "youtu.be":
-        return parsed.path.strip("/")
-
-    if parsed.path == "/watch":
-        return parse_qs(parsed.query).get("v", [""])[0]
-
-    if parsed.path.startswith(("/shorts/", "/embed/")):
-        return parsed.path.split("/")[2]
-
-    return ""
-
-def get_youtube_content(url: str) -> str:
-    # Retrieve title, description and other metadata
-    options = {
-        "skip_download": True,
-        "quiet": True,
-        "no_warnings": True,
-    }
-
-    with yt_dlp.YoutubeDL(options) as ydl:
-        info = ydl.extract_info(url, download=False)
-
-    parts = [
-        f"Title: {info.get('title', '')}",
-        f"Channel: {info.get('channel', '')}",
-        f"Description:\n{info.get('description', '')}",
-        f"Upload date: {info.get('upload_date', '')}",
-        f"View count: {info.get('view_count', '')}",
-    ]
-
-    # Retrieve comments using the YouTube Data API
-    video_id = get_video_id(url)
-    api_key = os.environ.get("YOUTUBE_API_KEY")
-
-    if not video_id or not api_key:
-        parts.append("Comments unavailable: missing video ID or API key.")
-        return "\n\n".join(parts)
-
-    youtube = build("youtube", "v3", developerKey=api_key)
-    comments = []
-    page_token = None
-    max_comments = 100  # Adjust to control output size
-
-    while len(comments) < max_comments:
-        request = youtube.commentThreads().list(
-            part="snippet",
-            videoId=video_id,
-            maxResults=min(100, max_comments - len(comments)),
-            order="relevance",
-            textFormat="plainText",
-            pageToken=page_token,
-        )
-        response = request.execute()
-
-        for item in response.get("items", []):
-            snippet = item["snippet"]["topLevelComment"]["snippet"]
-            comments.append(
-                f"- {snippet.get('authorDisplayName', 'Unknown')}: "
-                f"{snippet.get('textDisplay', '')}"
-            )
-
-        page_token = response.get("nextPageToken")
-        if not page_token:
-            break
-
-    parts.append(
-        f"Top comments (up to {max_comments}):\n"
-        + ("\n".join(comments) if comments else "No comments retrieved.")
-    )
-
-    return "\n\n".join(parts)
 
 ###############################
 ## Web Search and Read Tools ##
@@ -112,23 +35,11 @@ def websearch_tool(query: str) -> str:
     except DDGSException as e:
         return f"Search failed or returned no results: {e}. Try a different query."
 
-def is_youtube_url(url: str) -> bool:
-    host = urlparse(url).netloc.lower().split(":")[0]
-    return host == "youtu.be" or (
-        host == "youtube.com" or host.endswith(".youtube.com")
-    )
 
 @tool
 def visit_website_tool(url: str) -> str:
     """Retrieve webpage content or YouTube metadata, description and comments."""
     try:
-        host = urlparse(url).hostname or ""
-
-        if host == "youtu.be" or (
-            host == "youtube.com" or host.endswith(".youtube.com")
-        ):
-            return get_youtube_content(url)
-
         docs = WebBaseLoader(url).load()
         return "\n\n".join(doc.page_content for doc in docs) if docs else "No content found."
 
@@ -247,7 +158,7 @@ def read_csv_tool(file_path: str) -> str:
         str: The content of the CSV file or a message if no content is found.
     """
     try:
-        # Check ifor meatadataa (#)
+        # Check for metadata (#)
         skiprows = 0
 
         with open(file_path, "r", encoding="utf-8-sig") as f:
@@ -303,7 +214,7 @@ def describe_image_assistant(image_path: str) -> str:
         mime_type = mimetypes.guess_type(path.name)[0] or "image/jpeg"
         image_data = base64.b64encode(path.read_bytes()).decode("utf-8")
 
-        response = llm.invoke([
+        response = base_llm.invoke([
             HumanMessage(content=[
                 {"type": "text", "text": "Describe the image, including any text, objects, or scenes present."},
                 {
@@ -335,7 +246,7 @@ def extract_text_from_image_assistant(image_path: str) -> str:
         mime_type = mimetypes.guess_type(path.name)[0] or "image/jpeg"
         image_data = base64.b64encode(path.read_bytes()).decode("utf-8")
 
-        response = llm.invoke([
+        response = base_llm.invoke([
             HumanMessage(content=[
                 {"type": "text", "text": "Extract all readable text from this image."},
                 {
@@ -372,7 +283,7 @@ def analyze_mp3_tool(audio_path: str) -> str:
 
         audio_data = base64.b64encode(path.read_bytes()).decode("utf-8")
 
-        response = llm.invoke([
+        response = base_llm.invoke([
             HumanMessage(content=[
                 {
                     "type": "text",
