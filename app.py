@@ -1,6 +1,5 @@
 import os
 import gradio as gr
-from langchain_google_genai import ChatGoogleGenerativeAI
 import spaces
 
 from tools import *
