@@ -109,32 +109,32 @@ class BasicAgent:
             HumanMessage(content=question),
         ]
         try:
-    final_state = None
-
-    for state in self.graph.stream(
-        {"messages": messages},
-        config={"recursion_limit": 25},
-        stream_mode="values"
-    ):
-        final_state = state
-
-    answer = final_state["messages"][-1].text
-    return answer
-
-except GraphRecursionError:
-    print("Recursion limit reached. Asking for best guess...")
-
-    final_messages = final_state["messages"] + [
-        SystemMessage(content=(
-            "You have reached the tool-use limit. "
-            "Do not call any more tools. "
-            "Use all information already obtained from previous tool calls "
-            "to provide the best-supported answer. "
-            "Return only the answer."
-        ))
-    ]
-
-    response = self.llm.model.invoke(final_messages)
-    return response.text
+            final_state = None
+        
+            for state in self.graph.stream(
+                {"messages": messages},
+                config={"recursion_limit": 25},
+                stream_mode="values"
+            ):
+                final_state = state
+        
+            answer = final_state["messages"][-1].text
+            return answer
+        
+        except GraphRecursionError:
+            print("Recursion limit reached. Asking for best guess...")
+        
+            final_messages = final_state["messages"] + [
+                SystemMessage(content=(
+                    "You have reached the tool-use limit. "
+                    "Do not call any more tools. "
+                    "Use all information already obtained from previous tool calls "
+                    "to provide the best-supported answer. "
+                    "Return only the answer."
+                ))
+            ]
+        
+            response = self.llm.model.invoke(final_messages)
+            return response.text
 
     
