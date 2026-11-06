@@ -125,7 +125,7 @@ class BasicAgent:
             print("Recursion limit reached. Asking for best guess...")
         
             final_messages = final_state["messages"] + [
-                SystemMessage(content=(
+                HumanMessage(content=(
                     "You have reached the tool-use limit. "
                     "Do not call any more tools. "
                     "Use all information already obtained from previous tool calls "
@@ -133,8 +133,8 @@ class BasicAgent:
                     "Return only the answer."
                 ))
             ]
-        
+            
             response = self.llm.model.invoke(final_messages)
-            return response.text
+            answer = response.text
 
     
