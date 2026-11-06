@@ -2,6 +2,8 @@ from langgraph.graph import START, StateGraph
 from langgraph.prebuilt import tools_condition
 from langgraph.prebuilt import ToolNode
 from langgraph.errors import GraphRecursionError
+import time
+
 from tools import *
 
 #################
@@ -134,14 +136,22 @@ class BasicAgent:
                     "Return only the answer."
                 ))
             ]
+
             try:
                 response = self.llm.model.invoke(final_messages)
             
             except Exception as e:
-                if "503" in str(e) or "UNAVAILABLE" in str(e):
-                    print("Gemini unavailable. Retrying once in 60 seconds...")
+                error = str(e)
+            
+                if any(code in error for code in ["503", "UNAVAILABLE",
+                                                  "429", "RESOURCE_EXHAUSTED"]):
+            
+                    print("Gemini temporarily unavailable or rate limited.")
+                    print("Retrying once in 60 seconds...")
+            
                     time.sleep(61)
                     response = self.llm.model.invoke(final_messages)
+            
                 else:
                     raise
             
