@@ -113,7 +113,7 @@ class BasicAgent:
 
     for state in self.graph.stream(
         {"messages": messages},
-        config={"recursion_limit": 40},
+        config={"recursion_limit": 25},
         stream_mode="values"
     ):
         final_state = state
