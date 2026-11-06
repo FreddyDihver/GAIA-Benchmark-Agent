@@ -55,19 +55,6 @@ The main workflow consists of three components:
 2. **Tools:** Execute the selected operation and return the result.
 3. **Assistant:** Receives the tool output, evaluates the information, and either calls another tool or produces the final answer.
 
-### Workflow
-
-```mermaid
-flowchart TD
-    A[GAIA Task] --> B[Assistant / Gemini]
-    B --> C{Tool required?}
-    C -->|No| D[Final Answer]
-    C -->|Yes| E[Select and Execute Tool]
-    E --> F[Tool Result]
-    F --> B
-    B --> D
-```
-
 A recursion limit prevents the graph from running indefinitely. If this limit is reached, the agent attempts to generate a final answer using the information already gathered, rather than starting the task again.
 
 ### Language model
@@ -127,8 +114,6 @@ Supported processing includes:
 For tasks involving attachments, the agent is instructed to inspect the provided files before attempting to find the answer through external web searches.
 
 ## Evaluation
-
-<badge color="success" size="lg">90/100</badge>
 
 The agent achieved a **test score of 90/100** during evaluation.
 
