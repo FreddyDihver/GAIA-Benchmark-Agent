@@ -24,4 +24,4 @@ base_llm = ChatGoogleGenerativeAI(
     thinking_level="high",
 )
 
-llm = RetryLLM(llm)
+llm = RetryLLM(base_llm)
