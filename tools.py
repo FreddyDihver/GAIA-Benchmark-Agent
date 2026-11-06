@@ -11,6 +11,8 @@ from ddgs.exceptions import DDGSException
 from langchain_core.messages import HumanMessage
 import mimetypes
 
+from model import *
+
 ################################
 ##  YouTube Content Retrieval ##
 ################################
