@@ -1,15 +1,3 @@
----
-title: GAIA Benchmark Agent
-emoji: 🤖
-colorFrom: blue
-colorTo: purple
-sdk: gradio
-sdk_version: 5.25.2
-app_file: app.py
-pinned: false
-hf_oauth: true
----
-
 # GAIA Benchmark Agent
 
 An AI agent built with **LangChain, LangGraph, and Google's Gemini models** to solve tasks from the [GAIA benchmark](https://huggingface.co/datasets/gaia-benchmark/GAIA).
