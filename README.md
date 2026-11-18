@@ -6,7 +6,7 @@ The agent combines reasoning, tool use, web research, document processing, and m
 
 **Test score: 90/100**
 
-This project was developed as the final assignment for the Hugging Face Agents Course and is based on the [Final Assignment Template](https://huggingface.co/spaces/agents-course/Final_Assignment_Template).
+This project was developed as the final assignment for the Hugging Face Agents Course and is based on the [Final Assignment Template](https://huggingface.co/spaces/agents-course/Final_Assignment_Template). It can be run on my [GAIA Agent Hugging Face Space](https://huggingface.co/spaces/FreddyDihver/AgentCourseFinal).
 
 ---
 
